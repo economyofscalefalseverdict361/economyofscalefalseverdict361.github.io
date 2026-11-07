@@ -24,6 +24,7 @@ let savingsPage = 1;
 let savingsTotalCount = 0;
 let savingsRequestController;
 let activeSavingsQuery = '"context compression"';
+const readmeSummaries = new Map();
 
 const numberFormat = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
 const dateFormat = new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "short", day: "numeric" });
@@ -60,6 +61,89 @@ function getRepositoryType(repository) {
   return "기타";
 }
 
+function extractReadmeSummary(markdown) {
+  const content = markdown
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/<details[\s\S]*?<\/details>/gi, "")
+    .replace(/<[^>]+>/g, " ");
+  const paragraphs = content.split(/\n\s*\n/);
+
+  for (const paragraph of paragraphs) {
+    const text = paragraph
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+      .replace(/^\s{0,3}#{1,6}\s+/gm, "")
+      .replace(/^\s{0,3}>/gm, "")
+      .replace(/^\s*[-*_]{3,}\s*$/gm, "")
+      .replace(/[`*_~|]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    if (text.length < 20 || !/[a-zA-Z0-9가-힣]/.test(text)) continue;
+    if (/^(table of contents|목차|contents)$/i.test(text)) continue;
+    if (text.length <= 240) return text;
+    const shortened = text.slice(0, 240);
+    const lastSpace = shortened.lastIndexOf(" ");
+    return `${shortened.slice(0, lastSpace > 150 ? lastSpace : 240).trim()}…`;
+  }
+
+  return "";
+}
+
+function decodeReadmeContent(readme) {
+  if (readme.encoding !== "base64" || typeof readme.content !== "string") {
+    throw new Error("README 내용을 읽을 수 없는 형식입니다.");
+  }
+  const bytes = Uint8Array.from(atob(readme.content.replace(/\s/g, "")), (character) => character.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+
+async function fetchReadmeSummary(repository) {
+  const fullName = repository.full_name || `${repository.owner.login}/${repository.name}`;
+  if (!readmeSummaries.has(fullName)) {
+    const request = fetch(`https://api.github.com/repos/${fullName}/readme`, {
+      headers: { Accept: "application/vnd.github+json" }
+    }).then(async (response) => {
+      const payload = await response.json();
+      if (!response.ok) throw new Error(errorMessage(response, payload));
+      const summaryText = extractReadmeSummary(decodeReadmeContent(payload));
+      if (!summaryText) throw new Error("README에서 짧은 소개 문단을 찾지 못했습니다.");
+      return summaryText;
+    });
+    readmeSummaries.set(fullName, request);
+    request.catch(() => readmeSummaries.delete(fullName));
+  }
+  return readmeSummaries.get(fullName);
+}
+
+async function showRepositorySummary(repository, button, summaryText) {
+  if (!summaryText.hidden) {
+    summaryText.hidden = true;
+    button.setAttribute("aria-expanded", "false");
+    button.textContent = "핵심 내용 보기 +";
+    return;
+  }
+
+  summaryText.hidden = false;
+  button.setAttribute("aria-expanded", "true");
+  button.disabled = true;
+  button.textContent = "README 읽는 중…";
+  summaryText.textContent = "README의 첫 소개 문단을 확인하고 있습니다.";
+
+  try {
+    summaryText.textContent = await fetchReadmeSummary(repository);
+    button.textContent = "핵심 내용 접기 −";
+  } catch (error) {
+    summaryText.textContent = error.message;
+    button.textContent = "다시 시도 ↻";
+    button.setAttribute("aria-expanded", "false");
+    summaryText.hidden = true;
+  } finally {
+    button.disabled = false;
+  }
+}
+
 function createRepositoryCard(repository, index) {
   const card = makeElement("article", "repo-card");
   card.style.setProperty("--card-index", String(index % PAGE_SIZE));
@@ -80,6 +164,15 @@ function createRepositoryCard(repository, index) {
   title.append(link);
 
   const description = makeElement("p", "repo-description", repository.description || "저장소 설명이 아직 등록되지 않았습니다.");
+  const coreSummary = makeElement("div", "repo-core-summary");
+  const summaryButton = makeElement("button", "repo-summary-toggle", "핵심 내용 보기 +");
+  summaryButton.type = "button";
+  summaryButton.setAttribute("aria-expanded", "false");
+  const summaryText = makeElement("p", "repo-summary-text");
+  summaryText.hidden = true;
+  summaryText.setAttribute("aria-live", "polite");
+  summaryButton.addEventListener("click", () => showRepositorySummary(repository, summaryButton, summaryText));
+  coreSummary.append(summaryButton, summaryText);
   const details = makeElement("div", "repo-details");
   const language = makeElement("span", "repo-language", repository.language || "언어 미지정");
   if (repository.language) {
@@ -98,7 +191,7 @@ function createRepositoryCard(repository, index) {
   openLink.rel = "noreferrer";
   footer.append(forks, openLink);
 
-  card.append(top, category, title, description, details, footer);
+  card.append(top, category, title, description, coreSummary, details, footer);
   return card;
 }
 
