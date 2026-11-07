@@ -25,6 +25,7 @@ let savingsTotalCount = 0;
 let savingsRequestController;
 let activeSavingsQuery = '"context compression"';
 const readmeSummaries = new Map();
+const repositoryFiles = new Map();
 
 const numberFormat = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
 const dateFormat = new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "short", day: "numeric" });
@@ -61,34 +62,131 @@ function getRepositoryType(repository) {
   return "기타";
 }
 
-function extractReadmeSummary(markdown) {
-  const content = markdown
+const summaryLabels = {
+  ko: {
+    description: "저장소 설명",
+    overview: "프로젝트 개요",
+    features: "주요 기능",
+    usage: "사용 방법",
+    fallback: "한국어 README가 없어 저장소의 기본 README 원문을 표시합니다.",
+    loading: "README에서 개요·기능·사용 방법을 확인하고 있습니다."
+  },
+  en: {
+    description: "Repository description",
+    overview: "Project overview",
+    features: "Key features",
+    usage: "How to use",
+    fallback: "No English README was found; showing the repository's default README.",
+    loading: "Reading the README overview, features, and usage."
+  }
+};
+
+function cleanMarkdownBlock(block) {
+  return block
     .replace(/<!--[\s\S]*?-->/g, "")
     .replace(/```[\s\S]*?```/g, "")
     .replace(/<details[\s\S]*?<\/details>/gi, "")
-    .replace(/<[^>]+>/g, " ");
-  const paragraphs = content.split(/\n\s*\n/);
+    .replace(/<[^>]+>/g, " ")
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/^\s{0,3}#{1,6}\s+/gm, "")
+    .replace(/^\s{0,3}>\s?/gm, "")
+    .replace(/^\s*[-*+]\s+/gm, "• ")
+    .replace(/^\s*\d+[.)]\s+/gm, "• ")
+    .replace(/^\s*[-*_]{3,}\s*$/gm, "")
+    .replace(/[`*_~|]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
-  for (const paragraph of paragraphs) {
-    const text = paragraph
-      .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
-      .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
-      .replace(/^\s{0,3}#{1,6}\s+/gm, "")
-      .replace(/^\s{0,3}>/gm, "")
-      .replace(/^\s*[-*_]{3,}\s*$/gm, "")
-      .replace(/[`*_~|]/g, "")
-      .replace(/\s+/g, " ")
-      .trim();
+function shortenText(text, maximum = 320) {
+  if (text.length <= maximum) return text;
+  const shortened = text.slice(0, maximum);
+  const lastSpace = shortened.lastIndexOf(" ");
+  return `${shortened.slice(0, lastSpace > maximum * 0.6 ? lastSpace : maximum).trim()}…`;
+}
 
-    if (text.length < 20 || !/[a-zA-Z0-9가-힣]/.test(text)) continue;
-    if (/^(table of contents|목차|contents)$/i.test(text)) continue;
-    if (text.length <= 240) return text;
-    const shortened = text.slice(0, 240);
-    const lastSpace = shortened.lastIndexOf(" ");
-    return `${shortened.slice(0, lastSpace > 150 ? lastSpace : 240).trim()}…`;
+function detectTextLanguage(text) {
+  const hangulCount = (text.match(/[가-힣]/g) || []).length;
+  const letterCount = (text.match(/[a-zA-Z가-힣]/g) || []).length;
+  return hangulCount / Math.max(letterCount, 1) > 0.02 ? "ko" : "en";
+}
+
+function getSectionLabel(heading, language) {
+  const normalized = heading.toLowerCase();
+  const labels = summaryLabels[language];
+  if (/what is|about|overview|introduction|소개|개요|프로젝트/.test(normalized)) return labels.overview;
+  if (/feature|capabilit|기능/.test(normalized)) return labels.features;
+  if (/usage|getting started|quick start|installation|install|example|사용법|사용 방법|시작|설치|예제/.test(normalized)) return labels.usage;
+  return language === "en" ? heading : `README: ${heading}`;
+}
+
+function extractReadmeSummary(markdown, repository, language) {
+  const content = markdown
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/<details[\s\S]*?<\/details>/gi, "");
+  const sections = [];
+  let current = { heading: "", body: "", level: 0 };
+
+  for (const line of content.split("\n")) {
+    const heading = line.match(/^\s{0,3}(#{1,6})\s+(.+?)\s*#*\s*$/);
+    if (heading) {
+      sections.push(current);
+      current = { heading: cleanMarkdownBlock(heading[2]), body: "", level: heading[1].length };
+    } else {
+      current.body += `${line}\n`;
+    }
+  }
+  sections.push(current);
+
+  const skipSection = /^(table of contents|contents|목차|license|licen[cs]e|contributing|contributors|authors|acknowledg(e)?ments|기여|라이선스|credits|support|지원)$/i;
+  const parsed = sections
+    .filter((section) => !skipSection.test(section.heading))
+    .map((section) => {
+      const blocks = section.body
+        .split(/\n\s*\n/)
+        .filter((block) => !/^\s*\|?[\s:|-]+\|?\s*$/.test(block))
+        .map(cleanMarkdownBlock)
+        .filter((text) => text.length >= 24);
+      return { heading: section.heading, level: section.level, text: shortenText(blocks.slice(0, 3).join(" "), 320) };
+    })
+    .filter((section) => section.text);
+
+  const labels = summaryLabels[language];
+  const result = [];
+  const description = repository.description?.trim();
+  if (description && detectTextLanguage(description) === language) {
+    result.push({ label: labels.description, text: shortenText(description) });
   }
 
-  return "";
+  const intro = parsed.find((section) => !section.heading)?.text
+    ? parsed.find((section) => !section.heading)
+    : parsed.find((section) => section.level === 1);
+  if (intro && !result.some((item) => item.text === intro.text)) {
+    result.push({ label: labels.overview, text: intro.text });
+  }
+
+  const rankedSections = parsed
+    .filter((section) => section.heading && section !== intro)
+    .sort((left, right) => sectionPriority(left.heading) - sectionPriority(right.heading));
+
+  for (const section of rankedSections) {
+    const label = getSectionLabel(section.heading, language);
+    if (result.some((item) => item.label === label)) continue;
+    result.push({ label, text: section.text });
+    if (result.length >= 4) break;
+  }
+
+  if (!result.length) throw new Error("README에서 프로젝트 설명이나 기능 내용을 찾지 못했습니다.");
+  return result;
+}
+
+function sectionPriority(heading) {
+  if (/what is|about|overview|introduction|소개|개요|프로젝트/i.test(heading)) return 0;
+  if (/feature|capabilit|기능/i.test(heading)) return 1;
+  if (/usage|getting started|quick start|installation|install|example|사용법|시작|설치|예제/i.test(heading)) return 2;
+  return 3;
 }
 
 function decodeReadmeContent(readme) {
@@ -99,49 +197,124 @@ function decodeReadmeContent(readme) {
   return new TextDecoder().decode(bytes);
 }
 
-async function fetchReadmeSummary(repository) {
-  const fullName = repository.full_name || `${repository.owner.login}/${repository.name}`;
-  if (!readmeSummaries.has(fullName)) {
-    const request = fetch(`https://api.github.com/repos/${fullName}/readme`, {
+async function getRepositoryFiles(fullName) {
+  if (!repositoryFiles.has(fullName)) {
+    const request = fetch(`https://api.github.com/repos/${fullName}/contents`, {
       headers: { Accept: "application/vnd.github+json" }
     }).then(async (response) => {
       const payload = await response.json();
       if (!response.ok) throw new Error(errorMessage(response, payload));
-      const summaryText = extractReadmeSummary(decodeReadmeContent(payload));
-      if (!summaryText) throw new Error("README에서 짧은 소개 문단을 찾지 못했습니다.");
-      return summaryText;
+      return payload;
     });
-    readmeSummaries.set(fullName, request);
-    request.catch(() => readmeSummaries.delete(fullName));
+    repositoryFiles.set(fullName, request);
+    request.catch(() => repositoryFiles.delete(fullName));
   }
-  return readmeSummaries.get(fullName);
+  return repositoryFiles.get(fullName);
 }
 
-async function showRepositorySummary(repository, button, summaryText) {
-  if (!summaryText.hidden) {
-    summaryText.hidden = true;
-    button.setAttribute("aria-expanded", "false");
-    button.textContent = "핵심 내용 보기 +";
-    return;
-  }
+async function fetchReadmeFile(repository, language) {
+  const fullName = repository.full_name || `${repository.owner.login}/${repository.name}`;
+  const cacheKey = `${fullName}:${language}`;
+  if (!readmeSummaries.has(cacheKey)) {
+    const request = (async () => {
+      let readme;
+      let localized = false;
+      const files = await getRepositoryFiles(fullName);
+      const languagePattern = language === "ko" ? /[._-](?:ko|kr)(?:[-_][a-z]{2})?\./i : /[._-]en(?:[-_][a-z]{2})?\./i;
+      const localizedReadme = files.find((file) => (
+        file.type === "file" && /^readme(?:[._-][a-z]{2}(?:[-_][a-z]{2})?)?\.md$/i.test(file.name)
+        && languagePattern.test(file.name)
+      ));
 
-  summaryText.hidden = false;
-  button.setAttribute("aria-expanded", "true");
+      if (localizedReadme) {
+        const localizedResponse = await fetch(localizedReadme.url, {
+          headers: { Accept: "application/vnd.github+json" }
+        });
+        readme = await localizedResponse.json();
+        if (!localizedResponse.ok) throw new Error(errorMessage(localizedResponse, readme));
+        localized = true;
+      }
+
+      if (!readme) {
+        const response = await fetch(`https://api.github.com/repos/${fullName}/readme`, {
+          headers: { Accept: "application/vnd.github+json" }
+        });
+        readme = await response.json();
+        if (!response.ok) throw new Error(errorMessage(response, readme));
+      }
+
+      const markdown = decodeReadmeContent(readme);
+      const sourceLanguage = localized ? language : detectTextLanguage(markdown);
+      const fallback = !localized && sourceLanguage !== language;
+      return {
+        sections: extractReadmeSummary(markdown, repository, language),
+        sourceLanguage,
+        fallback
+      };
+    })();
+    readmeSummaries.set(cacheKey, request);
+    request.catch(() => readmeSummaries.delete(cacheKey));
+  }
+  return readmeSummaries.get(cacheKey);
+}
+
+function renderRepositorySummary(summary, language, notice, sectionsContainer) {
+  notice.hidden = !summary.fallback;
+  notice.textContent = summary.fallback ? summaryLabels[language].fallback : "";
+  sectionsContainer.replaceChildren();
+  if (summary.fallback) {
+    notice.dataset.sourceLanguage = summary.sourceLanguage;
+  }
+  for (const section of summary.sections) {
+    const article = makeElement("section", "summary-section");
+    article.append(makeElement("h4", "", section.label), makeElement("p", "", section.text));
+    sectionsContainer.append(article);
+  }
+}
+
+async function loadRepositorySummary(repository, button, summaryPanel, notice, sectionsContainer, language) {
   button.disabled = true;
-  button.textContent = "README 읽는 중…";
-  summaryText.textContent = "README의 첫 소개 문단을 확인하고 있습니다.";
+  button.textContent = language === "ko" ? "README 읽는 중…" : "Reading README…";
+  notice.hidden = false;
+  notice.textContent = summaryLabels[language].loading;
+  sectionsContainer.replaceChildren();
 
   try {
-    summaryText.textContent = await fetchReadmeSummary(repository);
-    button.textContent = "핵심 내용 접기 −";
+    const summary = await fetchReadmeFile(repository, language);
+    renderRepositorySummary(summary, language, notice, sectionsContainer);
+    summaryPanel.dataset.language = language;
+    button.textContent = "핵심 내용 접기 / Collapse −";
+    button.setAttribute("aria-expanded", "true");
   } catch (error) {
-    summaryText.textContent = error.message;
-    button.textContent = "다시 시도 ↻";
+    notice.hidden = false;
+    notice.textContent = error.message;
+    button.textContent = "다시 시도 / Retry ↻";
     button.setAttribute("aria-expanded", "false");
-    summaryText.hidden = true;
+    summaryPanel.hidden = true;
   } finally {
     button.disabled = false;
   }
+}
+
+function showRepositorySummary(repository, button, summaryPanel, notice, sectionsContainer) {
+  if (!summaryPanel.hidden) {
+    summaryPanel.hidden = true;
+    button.setAttribute("aria-expanded", "false");
+    button.textContent = "핵심 내용 보기 / Summary +";
+    return;
+  }
+
+  summaryPanel.hidden = false;
+  const language = summaryPanel.dataset.language || "ko";
+  loadRepositorySummary(repository, button, summaryPanel, notice, sectionsContainer, language);
+}
+
+function createSummaryLanguageButton(language) {
+  const label = language === "ko" ? "한국어" : "English";
+  const languageButton = makeElement("button", `summary-language-button${language === "ko" ? " is-active" : ""}`, label);
+  languageButton.type = "button";
+  languageButton.setAttribute("aria-pressed", String(language === "ko"));
+  return languageButton;
 }
 
 function createRepositoryCard(repository, index) {
@@ -165,14 +338,34 @@ function createRepositoryCard(repository, index) {
 
   const description = makeElement("p", "repo-description", repository.description || "저장소 설명이 아직 등록되지 않았습니다.");
   const coreSummary = makeElement("div", "repo-core-summary");
-  const summaryButton = makeElement("button", "repo-summary-toggle", "핵심 내용 보기 +");
+  const summaryButton = makeElement("button", "repo-summary-toggle", "핵심 내용 보기 / Summary +");
   summaryButton.type = "button";
   summaryButton.setAttribute("aria-expanded", "false");
-  const summaryText = makeElement("p", "repo-summary-text");
-  summaryText.hidden = true;
-  summaryText.setAttribute("aria-live", "polite");
-  summaryButton.addEventListener("click", () => showRepositorySummary(repository, summaryButton, summaryText));
-  coreSummary.append(summaryButton, summaryText);
+  const summaryPanel = makeElement("div", "repo-summary-panel");
+  summaryPanel.hidden = true;
+  summaryPanel.dataset.language = "ko";
+  const languageSwitch = makeElement("div", "summary-language-switch");
+  languageSwitch.setAttribute("role", "group");
+  languageSwitch.setAttribute("aria-label", "요약 언어 / Summary language");
+  languageSwitch.append(createSummaryLanguageButton("ko"), createSummaryLanguageButton("en"));
+  const summaryNotice = makeElement("p", "summary-language-note");
+  summaryNotice.hidden = true;
+  summaryNotice.setAttribute("aria-live", "polite");
+  const summarySections = makeElement("div", "summary-sections");
+  languageSwitch.querySelectorAll(".summary-language-button").forEach((languageButton) => {
+    languageButton.addEventListener("click", () => {
+      if (languageButton.getAttribute("aria-pressed") === "true" || summaryButton.disabled) return;
+      languageSwitch.querySelectorAll(".summary-language-button").forEach((item) => {
+        const isActive = item === languageButton;
+        item.classList.toggle("is-active", isActive);
+        item.setAttribute("aria-pressed", String(isActive));
+      });
+      loadRepositorySummary(repository, summaryButton, summaryPanel, summaryNotice, summarySections, languageButton.textContent === "한국어" ? "ko" : "en");
+    });
+  });
+  summaryPanel.append(languageSwitch, summaryNotice, summarySections);
+  summaryButton.addEventListener("click", () => showRepositorySummary(repository, summaryButton, summaryPanel, summaryNotice, summarySections));
+  coreSummary.append(summaryButton, summaryPanel);
   const details = makeElement("div", "repo-details");
   const language = makeElement("span", "repo-language", repository.language || "언어 미지정");
   if (repository.language) {
