@@ -1,4 +1,4 @@
-# yni.github.io
+# ydhappy.github.io
 
 yni의 개인 사이트입니다. 정적 HTML, CSS, JavaScript로 구성되어 GitHub Pages에서 바로 배포할 수 있습니다.
 
