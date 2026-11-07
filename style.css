@@ -116,7 +116,8 @@ button { color: inherit; }
 .repo-rank { color: var(--faint); font: 500 8px "SFMono-Regular", Consolas, monospace; letter-spacing: .1em; }
 .repo-stars { color: var(--lime); font: 600 11px "SFMono-Regular", Consolas, monospace; }
 .star-icon { font-size: 13px; }
-.repo-name { margin: 23px 0 9px; overflow-wrap: anywhere; font-size: 14px; line-height: 1.5; font-weight: 600; letter-spacing: -.035em; }
+.repo-type { align-self: flex-start; margin-top: 15px; padding: 5px 8px; border: 1px solid #474252; color: #c2b8ff; background: #9c8cff0d; font-size: 8px; line-height: 1.2; }
+.repo-name { margin: 11px 0 9px; overflow-wrap: anywhere; font-size: 14px; line-height: 1.5; font-weight: 600; letter-spacing: -.035em; }
 .repo-name a:hover { color: var(--lime); }
 .repo-description { display: -webkit-box; min-height: 40px; margin: 0 0 18px; overflow: hidden; color: var(--muted); font-size: 10px; line-height: 1.8; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .repo-details { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: auto; padding-bottom: 13px; }
@@ -141,6 +142,24 @@ button { color: inherit; }
 .load-more span { margin-left: 13px; }
 [hidden] { display: none !important; }
 
+.savings-section { width: min(1200px, calc(100% - 72px)); margin: 0 auto; padding-block: 74px 77px; border-top: 1px solid var(--line); }
+.savings-heading { display: flex; justify-content: space-between; align-items: center; gap: 30px; }
+.savings-heading .eyebrow { margin-bottom: 12px; color: var(--lime); }
+.savings-heading h2 { margin: 0; font-size: clamp(24px, 3vw, 34px); line-height: 1.4; letter-spacing: -.06em; font-weight: 600; }
+.savings-description { max-width: 720px; margin: 12px 0 0; color: var(--muted); font-size: 11px; line-height: 1.8; }
+.savings-mark { flex: none; width: 58px; height: 58px; display: grid; place-content: center; border: 1px solid #3e4430; border-radius: 50%; color: var(--lime); font: 600 16px/1.1 "SFMono-Regular", Consolas, monospace; text-align: center; }
+.savings-categories { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 25px; padding-bottom: 17px; border-bottom: 1px solid var(--line); }
+.savings-chip { padding: 8px 12px; border: 1px solid transparent; border-radius: 999px; background: transparent; color: var(--muted); font-size: 10px; cursor: pointer; transition: color 150ms ease, border-color 150ms ease, background 150ms ease; }
+.savings-chip:hover { color: var(--text); }
+.savings-chip.is-active { border-color: #3e4430; background: #252a20; color: var(--lime); }
+.savings-note { min-height: 38px; margin: 0; padding-block: 13px; color: var(--faint); font-size: 9px; line-height: 1.7; }
+.savings-grid .repo-card { min-height: 222px; }
+.savings-grid .repo-skeleton { height: 222px; }
+.savings-grid .repo-type { color: var(--lime); border-color: #3e4430; background: #c4f05c0a; }
+.savings-actions { min-height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+.savings-actions > p, .savings-disclaimer { margin: 0; color: var(--faint); font-size: 9px; line-height: 1.7; }
+.savings-disclaimer { padding-top: 11px; border-top: 1px solid var(--line); }
+
 .about-strip { min-height: 147px; display: flex; align-items: center; justify-content: center; gap: 22px; padding: 24px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #151820; }
 .about-star { color: var(--lime); font-size: 27px; }
 .about-strip p { margin: 0; font-size: 13px; font-weight: 500; line-height: 1.8; }
@@ -162,12 +181,13 @@ button { color: inherit; }
   .orbit-art { right: -120px; opacity: .45; }
   .intro-inner { z-index: 1; }
   .repo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .savings-section { width: min(1200px, calc(100% - 72px)); }
   .filter-row { align-items: flex-start; }
   .sort-label { padding-top: 8px; }
 }
 
 @media (max-width: 560px) {
-  .site-header, .site-footer, .intro, .discover { width: calc(100% - 36px); }
+  .site-header, .site-footer, .intro, .discover, .savings-section { width: calc(100% - 36px); }
   .site-header { height: 68px; }
   .brand { font-size: 17px; }
   .header-meta { gap: 0; }
@@ -186,6 +206,11 @@ button { color: inherit; }
   .orbit-center { width: 57px; height: 57px; font-size: 22px; }
   .intro-index { bottom: 20px; font-size: 7px; }
   .discover { padding-block: 54px 60px; }
+  .savings-section { padding-block: 54px 60px; }
+  .savings-heading { align-items: flex-start; }
+  .savings-heading h2 { font-size: 23px; }
+  .savings-description { font-size: 10px; }
+  .savings-mark { width: 45px; height: 45px; font-size: 13px; }
   .section-heading { align-items: flex-start; flex-direction: column; gap: 12px; }
   .section-heading h2 { font-size: 23px; }
   .updated-label { flex-direction: row; align-items: center; }
@@ -202,8 +227,10 @@ button { color: inherit; }
   .results-source { font-size: 7px; }
   .repo-grid { grid-template-columns: 1fr; gap: 9px; }
   .repo-card { min-height: 205px; padding: 16px; }
-  .repo-name { margin-top: 17px; }
+  .repo-name { margin-top: 10px; }
   .repo-skeleton { height: 205px; }
+  .savings-grid .repo-card { min-height: 205px; }
+  .savings-grid .repo-skeleton { height: 205px; }
   .about-strip { min-height: 130px; gap: 13px; justify-content: flex-start; padding-inline: 18px; }
   .about-strip p { font-size: 11px; }
   .about-strip p span { font-size: 9px; }

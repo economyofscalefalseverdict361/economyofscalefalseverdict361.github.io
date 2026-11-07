@@ -9,12 +9,21 @@ const summary = document.querySelector("#results-summary");
 const updated = document.querySelector("#last-updated");
 const loadMoreButton = document.querySelector("#load-more");
 const resultsNote = document.querySelector("#results-note");
+const savingsGrid = document.querySelector("#savings-grid");
+const savingsNote = document.querySelector("#savings-note");
+const savingsSummary = document.querySelector("#savings-summary");
+const savingsCategories = document.querySelector(".savings-categories");
+const savingsLoadMoreButton = document.querySelector("#savings-load-more");
 
 let activeLanguage = "";
 let searchTerm = "";
 let currentPage = 1;
 let totalCount = 0;
 let requestController;
+let savingsPage = 1;
+let savingsTotalCount = 0;
+let savingsRequestController;
+let activeSavingsQuery = '"context compression"';
 
 const numberFormat = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
 const dateFormat = new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "short", day: "numeric" });
@@ -35,6 +44,22 @@ function makeElement(tag, className, text) {
   return element;
 }
 
+function getRepositoryType(repository) {
+  const topics = repository.topics || [];
+  const text = `${repository.name} ${repository.description || ""} ${topics.join(" ")}`.toLowerCase();
+  const hasTopic = (...values) => values.some((value) => topics.includes(value));
+
+  if (/\b(prompt|context|token)[ -]?(compression|optimization|optimisation)|\b(prompt cache|llm cost|cost tracking)\b/.test(text)) return "토큰·비용 최적화";
+  if (hasTopic("coding-agent", "ai-coding-agent") || /\b(coding agent|code agent)\b/.test(text)) return "코딩 에이전트";
+  if (hasTopic("ai-agent", "agents", "agentic-ai") || /\b(ai agent|agentic|autonomous agent|multi-agent|mcp server)\b/.test(text)) return "AI 에이전트";
+  if (hasTopic("machine-learning", "deep-learning", "llm") || /\b(machine learning|deep learning|large language model|llm|inference)\b/.test(text)) return "AI·ML";
+  if (hasTopic("rag", "vector-database") || /\b(rag|retrieval augmented|vector database|embedding)\b/.test(text)) return "데이터·RAG";
+  if (hasTopic("developer-tools", "cli", "devtools") || /\b(developer tool|command.line|terminal|code editor|developer experience)\b/.test(text)) return "개발 도구";
+  if (hasTopic("framework", "library") || /\b(framework|library|sdk)\b/.test(text)) return "라이브러리·프레임워크";
+  if (hasTopic("web", "web-application") || /\b(web app|web application|frontend|backend)\b/.test(text)) return "웹·앱";
+  return "기타";
+}
+
 function createRepositoryCard(repository, index) {
   const card = makeElement("article", "repo-card");
   card.style.setProperty("--card-index", String(index % PAGE_SIZE));
@@ -46,6 +71,7 @@ function createRepositoryCard(repository, index) {
   starCount.append(makeElement("span", "star-icon", "★"), document.createTextNode(` ${formatStars(repository.stargazers_count)}`));
   top.append(rank, starCount);
 
+  const category = makeElement("span", "repo-type", getRepositoryType(repository));
   const title = makeElement("h3", "repo-name");
   const link = makeElement("a", "", `${repository.owner.login} / ${repository.name}`);
   link.href = repository.html_url;
@@ -72,7 +98,7 @@ function createRepositoryCard(repository, index) {
   openLink.rel = "noreferrer";
   footer.append(forks, openLink);
 
-  card.append(top, title, description, details, footer);
+  card.append(top, category, title, description, details, footer);
   return card;
 }
 
@@ -171,6 +197,90 @@ async function loadRepositories({ append = false } = {}) {
   }
 }
 
+async function loadSavingsRepositories({ append = false } = {}) {
+  savingsRequestController?.abort();
+  const controller = new AbortController();
+  savingsRequestController = controller;
+  const requestedPage = append ? savingsPage + 1 : 1;
+  const activeCategory = savingsCategories.querySelector(".is-active");
+  savingsNote.textContent = activeCategory?.dataset.description || "";
+  savingsGrid.setAttribute("aria-busy", "true");
+  savingsLoadMoreButton.disabled = true;
+
+  if (!append) {
+    savingsGrid.replaceChildren();
+    for (let index = 0; index < 3; index += 1) {
+      const skeleton = makeElement("div", "repo-skeleton");
+      skeleton.setAttribute("aria-hidden", "true");
+      savingsGrid.append(skeleton);
+    }
+    savingsSummary.textContent = "저장소를 불러오고 있어요...";
+    savingsLoadMoreButton.hidden = true;
+  }
+
+  const query = [activeSavingsQuery, "stars:>0", "fork:false", "archived:false"].join(" ");
+  const params = new URLSearchParams({
+    q: query,
+    sort: "stars",
+    order: "desc",
+    per_page: "12",
+    page: String(requestedPage)
+  });
+
+  try {
+    const response = await fetch(`${API_URL}?${params}`, {
+      headers: { Accept: "application/vnd.github+json" },
+      signal: controller.signal
+    });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(errorMessage(response, payload));
+
+    const items = payload.items || [];
+    savingsPage = requestedPage;
+    savingsTotalCount = payload.total_count || 0;
+    const startIndex = (requestedPage - 1) * 12;
+    const cards = items.map((repository, index) => {
+      const card = createRepositoryCard(repository, startIndex + index);
+      card.classList.add("savings-card");
+      return card;
+    });
+
+    if (append) savingsGrid.append(...cards);
+    else savingsGrid.replaceChildren(...cards);
+
+    const shownCount = savingsGrid.querySelectorAll(".repo-card").length;
+    savingsSummary.textContent = savingsTotalCount
+      ? `${numberFormat.format(savingsTotalCount)}개 이상의 검색 결과 · ${shownCount}개 표시 중`
+      : "검색 결과가 없습니다. 다른 분류를 선택해 보세요.";
+    savingsLoadMoreButton.hidden = items.length < 12 || shownCount >= savingsTotalCount || requestedPage >= 10;
+    if (requestedPage >= 10 && shownCount < savingsTotalCount) {
+      savingsSummary.textContent += " · GitHub 검색 API는 검색당 최대 1,000개까지 제공합니다.";
+    }
+  } catch (error) {
+    if (error.name === "AbortError") return;
+    if (!append) {
+      const errorCard = makeElement("div", "error-card");
+      errorCard.append(
+        makeElement("span", "error-icon", "!"),
+        makeElement("h3", "", "비용 절감 저장소를 불러오지 못했어요"),
+        makeElement("p", "", error.message),
+        makeElement("button", "retry-button", "다시 시도")
+      );
+      errorCard.querySelector("button").addEventListener("click", () => loadSavingsRepositories());
+      savingsGrid.replaceChildren(errorCard);
+      savingsSummary.textContent = "GitHub 연결을 확인해 주세요.";
+    } else {
+      savingsSummary.textContent = error.message;
+    }
+    savingsLoadMoreButton.hidden = true;
+  } finally {
+    if (!controller.signal.aborted) {
+      savingsGrid.setAttribute("aria-busy", "false");
+      savingsLoadMoreButton.disabled = false;
+    }
+  }
+}
+
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   searchTerm = searchInput.value;
@@ -190,5 +300,18 @@ filters.addEventListener("click", (event) => {
 });
 
 loadMoreButton.addEventListener("click", () => loadRepositories({ append: true }));
+savingsCategories.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-query]");
+  if (!button) return;
+  const activeButton = savingsCategories.querySelector(".is-active");
+  activeButton?.classList.remove("is-active");
+  activeButton?.setAttribute("aria-pressed", "false");
+  button.classList.add("is-active");
+  button.setAttribute("aria-pressed", "true");
+  activeSavingsQuery = button.dataset.query;
+  loadSavingsRepositories();
+});
+savingsLoadMoreButton.addEventListener("click", () => loadSavingsRepositories({ append: true }));
 
 loadRepositories();
+loadSavingsRepositories();

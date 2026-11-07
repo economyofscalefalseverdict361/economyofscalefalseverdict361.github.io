@@ -87,6 +87,33 @@
         </div>
       </section>
 
+      <section class="savings-section" aria-labelledby="savings-title">
+        <div class="savings-heading">
+          <div>
+            <p class="eyebrow">AGENT TOKEN &amp; CREDIT TOOLKIT</p>
+            <h2 id="savings-title">에이전트 비용을 아끼는 저장소</h2>
+            <p class="savings-description">컨텍스트 압축, 프롬프트 캐시, 사용량 분석처럼 토큰과 API 크레딧을 줄이는 데 도움이 되는 프로젝트를 별 순으로 모았습니다.</p>
+          </div>
+          <span class="savings-mark" aria-hidden="true">↓<br>¢</span>
+        </div>
+
+        <div class="savings-categories" role="group" aria-label="비용 절감 도구 유형">
+          <button class="savings-chip is-active" type="button" data-query='"context compression"' data-description="에이전트에 전달되는 대화와 도구 출력을 압축해 컨텍스트 토큰을 줄이는 도구입니다." aria-pressed="true">컨텍스트 압축</button>
+          <button class="savings-chip" type="button" data-query='"prompt compression"' data-description="모델에 보내는 프롬프트를 짧게 만드는 압축 도구와 연구 프로젝트입니다." aria-pressed="false">프롬프트 압축</button>
+          <button class="savings-chip" type="button" data-query='"prompt cache"' data-description="반복되는 프롬프트 캐시를 활용하거나 캐시 상태와 비용을 확인하는 프로젝트입니다." aria-pressed="false">프롬프트 캐시</button>
+          <button class="savings-chip" type="button" data-query='"LLM cost"' data-description="에이전트와 LLM 호출의 토큰 사용량 및 비용을 추적·분석하는 도구입니다." aria-pressed="false">비용 추적</button>
+          <button class="savings-chip" type="button" data-query="topic:token-optimization" data-description="코딩 에이전트의 요청과 도구 출력을 줄여 토큰을 절약하는 프로젝트입니다." aria-pressed="false">토큰 최적화</button>
+        </div>
+
+        <p class="savings-note" id="savings-note" aria-live="polite">컨텍스트 압축 도구를 불러오는 중입니다...</p>
+        <div class="repo-grid savings-grid" id="savings-grid" aria-live="polite" aria-busy="true"></div>
+        <div class="savings-actions">
+          <p id="savings-summary">별이 많은 저장소부터 보여드립니다.</p>
+          <button class="load-more" id="savings-load-more" type="button" hidden>더 불러오기 <span aria-hidden="true">↓</span></button>
+        </div>
+        <p class="savings-disclaimer">별 수와 검색 결과는 GitHub에서 조회합니다. 실제 절감률은 모델·설정·사용 방식에 따라 달라집니다.</p>
+      </section>
+
       <section class="about-strip">
         <span class="about-star" aria-hidden="true">✳</span>
         <p>오픈소스는 함께 만들어가는 아이디어입니다.<br><span>오늘의 별 하나가 다음 발견으로 이어지길.</span></p>
